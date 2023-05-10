@@ -1,3 +1,4 @@
+module Iap1 where
 -- Completar con los datos del grupo
 --
 -- Nombre de Grupo: xx
@@ -35,6 +36,11 @@ likesDePublicacion :: Publicacion -> [Usuario]
 likesDePublicacion (_, _, us) = us
 
 -- Ejercicios
+
+-- describir qué hace la función: La funcion ultiliza una funcion auxiliar la cual recibe una secuencia (usuarios) y 
+-- extrae el nombre de cada usuario de esa secuencia, luego en "nombresDeUsuarios" simplemente recibe la secuencia de
+-- la red social y extrae el primer elemento que es usuarios y llama a la funcion auxiliar.
+
 nombresDeUsuariosAux :: [Usuario] -> [String]
 nombresDeUsuariosAux [] = []
 nombresDeUsuariosAux (x:xs) = nombreDeUsuario x : nombresDeUsuariosAux xs
@@ -42,24 +48,44 @@ nombresDeUsuariosAux (x:xs) = nombreDeUsuario x : nombresDeUsuariosAux xs
 nombresDeUsuarios :: RedSocial -> [String]
 nombresDeUsuarios (us,rs,ps) = nombresDeUsuariosAux us
 
--- describir qué hace la función: La funcion ultiliza una funcion auxiliar la cual recibe una secuencia (usuarios) y 
--- extrae el nombre de cada usuario de esa secuencia, luego en "nombresDeUsuarios" simplemente recibe la secuencia de
--- la red social y extrae el primer elemento que es usuarios y llama a la funcion auxiliar.
 
+-- describir qué hace la función: .....
 amigosDe :: RedSocial -> Usuario -> [Usuario]
-amigosDe = undefined
+amigosDe (us, rs, ps) n = sonAmigos (relaciones(us, rs, ps)) n
+
+sonAmigos :: [Relacion] -> Usuario -> [Usuario]
+sonAmigos [] nm = []
+sonAmigos (x:xs) n | xs == [] && n == fst x = [snd x]
+                   | xs == [] && n == snd x = [fst x]
+                   | xs == [] && n /= fst x &&  n /= snd x = []
+                   | n == fst x = snd x : sonAmigos xs n
+                   | n == snd x = fst x : sonAmigos xs n
+                   | otherwise = sonAmigos xs n
 
 -- describir qué hace la función: .....
 cantidadDeAmigos :: RedSocial -> Usuario -> Int
-cantidadDeAmigos = undefined
+cantidadDeAmigos (us, rs, ps) n = contadorDeAmigos (amigosDe (us, rs, ps) n)
+
+contadorDeAmigos :: [Usuario] -> Int
+contadorDeAmigos [] = 0
+contadorDeAmigos (x:xs) | xs == [] = 1
+                        | otherwise = contadorDeAmigos xs + 1
 
 -- describir qué hace la función: .....
 usuarioConMasAmigos :: RedSocial -> Usuario
-usuarioConMasAmigos = undefined
+usuarioConMasAmigos ((x:xs), rs, ps) | xs == [] = x
+                                     | cantidadDeAmigos ((x:xs), rs, ps) x > cantidadDeAmigos ((x:xs), rs, ps) (head(xs)) = usuarioConMasAmigos ((x : tail(xs)), rs, ps)
+                                     | otherwise = usuarioConMasAmigos (xs, rs, ps)
 
 -- describir qué hace la función: .....
 estaRobertoCarlos :: RedSocial -> Bool
 estaRobertoCarlos = undefined
+
+-- describir qué hace la función: .....
+-- estaRobertoCarlos :: RedSocial -> Bool
+-- estaRobertoCarlos [] = False
+-- estaRobertoCarlos (x:xs) | x == "RobertoCarlos" = True
+--                          | otherwise = estaRobertoCarlos (xs)
 
 -- describir qué hace la función: .....
 publicacionesDe :: RedSocial -> Usuario -> [Publicacion]
@@ -81,9 +107,3 @@ tieneUnSeguidorFiel = undefined
 existeSecuenciaDeAmigos :: RedSocial -> Usuario -> Usuario -> Bool
 existeSecuenciaDeAmigos = undefined
 
-
--- RED SOCIAL
-
--- ([(1, "Paulo"), (2, "Jose"), (3, "Ana"), (4, "Maria"), (5, "Juan"),(6,"Roberto")],
--- [[(1, "Paulo"), (2, "Jose")],[(3, "Ana"), (4, "Maria")],[(5, "Juan"),(6,"Roberto")]],
--- [[(2, "Jose"),"PublicacionJose",[(3, "Ana"), (4, "Maria")]],[(1, "Paulo"),"PublicacionPaulo",[(2, "Jose"), (3, "Ana")]]])
