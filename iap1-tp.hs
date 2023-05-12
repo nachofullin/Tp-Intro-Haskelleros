@@ -37,7 +37,7 @@ likesDePublicacion (_, _, us) = us
 
 -- Ejercicios
 
--- describir qué hace la función: La funcion ultiliza una funcion auxiliar la cual recibe una secuencia (usuarios) y 
+-- describir qué hace la función: La funcion ultiliza una funcion auxiliar la cual recibe una secuencia (usuarios) y
 -- extrae el nombre de cada usuario de esa secuencia, luego en "nombresDeUsuarios" simplemente recibe la secuencia de
 -- la red social y extrae el primer elemento que es usuarios y llama a la funcion auxiliar.
 
@@ -49,20 +49,19 @@ nombresDeUsuarios :: RedSocial -> [String]
 nombresDeUsuarios (us,rs,ps) = nombresDeUsuariosAux us
 
 
--- describir qué hace la función: .....
+-- Toma una RedSocial y un Usuario y devuelve la lista de usuarios que se relacionan con el primero
+-- Para ello usamos una auxiliar "sonAmigos" que toma las relaciones de la RedSocial y chequea quienes son los amigos usuario dado
 amigosDe :: RedSocial -> Usuario -> [Usuario]
 amigosDe (us, rs, ps) n = sonAmigos (relaciones(us, rs, ps)) n
 
 sonAmigos :: [Relacion] -> Usuario -> [Usuario]
 sonAmigos [] nm = []
-sonAmigos (x:xs) n | xs == [] && n == fst x = [snd x]
-                   | xs == [] && n == snd x = [fst x]
-                   | xs == [] && n /= fst x &&  n /= snd x = []
-                   | n == fst x = snd x : sonAmigos xs n
+sonAmigos (x:xs) n | n == fst x = snd x : sonAmigos xs n
                    | n == snd x = fst x : sonAmigos xs n
                    | otherwise = sonAmigos xs n
 
--- describir qué hace la función: .....
+-- Toma una red social y un usuario y devuelve la cantidad de relaciones/amigos que tiene ese usuario
+-- Usa una funcion auxiliar que cuenta la cantidad de relaciones que tiene dicho usuario
 cantidadDeAmigos :: RedSocial -> Usuario -> Int
 cantidadDeAmigos (us, rs, ps) n = contadorDeAmigos (amigosDe (us, rs, ps) n)
 
@@ -71,15 +70,17 @@ contadorDeAmigos [] = 0
 contadorDeAmigos (x:xs) | xs == [] = 1
                         | otherwise = contadorDeAmigos xs + 1
 
--- describir qué hace la función: .....
+-- Toma una red social y compara la cantidad de amigos de cada usuario para devolver el usuario con mayor cantidad
 usuarioConMasAmigos :: RedSocial -> Usuario
 usuarioConMasAmigos ((x:xs), rs, ps) | xs == [] = x
                                      | cantidadDeAmigos ((x:xs), rs, ps) x > cantidadDeAmigos ((x:xs), rs, ps) (head(xs)) = usuarioConMasAmigos ((x : tail(xs)), rs, ps)
                                      | otherwise = usuarioConMasAmigos (xs, rs, ps)
 
--- describir qué hace la función: .....
+-- Toma una red social y revisa si algun usuario tiene mas de 1000000 de amigos
 estaRobertoCarlos :: RedSocial -> Bool
-estaRobertoCarlos = undefined
+estaRobertoCarlos ([], _, _) = False
+estaRobertoCarlos ((x:xs), rs, ps) | (cantidadDeAmigos ((x:xs), rs, ps) x) > 1000000 = True
+                                   | otherwise = estaRobertoCarlos (xs, rs, ps)
 
 -- describir qué hace la función: .....
 -- estaRobertoCarlos :: RedSocial -> Bool
@@ -87,9 +88,15 @@ estaRobertoCarlos = undefined
 -- estaRobertoCarlos (x:xs) | x == "RobertoCarlos" = True
 --                          | otherwise = estaRobertoCarlos (xs)
 
--- describir qué hace la función: .....
+-- Dada una red social y un usuario, la funcion principal extrae las publicaciones de la red social
+-- Y una funcion auxiliar que devuelve todas las publicaciones de ese usuario
 publicacionesDe :: RedSocial -> Usuario -> [Publicacion]
-publicacionesDe = undefined
+publicacionesDe rd n = publicacionesDelUsuario (publicaciones(rd)) n
+
+publicacionesDelUsuario :: [Publicacion] -> Usuario -> [Publicacion]
+publicacionesDelUsuario [] _ = []
+publicacionesDelUsuario (x:xs) n | usuarioDePublicacion x == n = x : publicacionesDelUsuario xs n
+             | otherwise = publicacionesDelUsuario xs n
 
 -- describir qué hace la función: .....
 publicacionesQueLeGustanA :: RedSocial -> Usuario -> [Publicacion]
