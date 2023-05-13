@@ -48,7 +48,6 @@ nombresDeUsuariosAux (x:xs) = nombreDeUsuario x : nombresDeUsuariosAux xs
 nombresDeUsuarios :: RedSocial -> [String]
 nombresDeUsuarios (us,rs,ps) = nombresDeUsuariosAux us
 
-
 -- describir qué hace la función: .....
 amigosDe :: RedSocial -> Usuario -> [Usuario]
 amigosDe (us, rs, ps) n = sonAmigos (relaciones(us, rs, ps)) n
