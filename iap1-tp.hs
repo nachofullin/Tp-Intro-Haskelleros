@@ -94,15 +94,32 @@ publicacionesDelUsuario (x:xs) n | usuarioDePublicacion x == n = x : publicacion
 
 -- describir qué hace la función: .....
 publicacionesQueLeGustanA :: RedSocial -> Usuario -> [Publicacion]
-publicacionesQueLeGustanA = undefined
+publicacionesQueLeGustanA (_, _, []) n = []
+publicacionesQueLeGustanA (us, rs, (x:xs)) n | leGustaLaPublicacionA x n == True = x : publicacionesQueLeGustanA (us, rs, xs) n
+                                             | otherwise = publicacionesQueLeGustanA (us, rs, xs) n
+
+leGustaLaPublicacionA :: Publicacion -> Usuario -> Bool
+leGustaLaPublicacionA (us, txt, []) n = False
+leGustaLaPublicacionA (us, txt, (x:xs)) n | x == n = True
+                                          | otherwise = leGustaLaPublicacionA (us, txt, xs) n
 
 -- describir qué hace la función: .....
 lesGustanLasMismasPublicaciones :: RedSocial -> Usuario -> Usuario -> Bool
-lesGustanLasMismasPublicaciones = undefined
+lesGustanLasMismasPublicaciones rs us1 us2 = publicacionesQueLeGustanA rs us1 == publicacionesQueLeGustanA rs us2
 
 -- describir qué hace la función: .....
 tieneUnSeguidorFiel :: RedSocial -> Usuario -> Bool
-tieneUnSeguidorFiel = undefined
+tieneUnSeguidorFiel rs a = aux1 (publicacionesDe rs a) (likesDePublicacion (head(publicacionesDe rs a)))
+
+aux1 :: [Publicacion] -> [Usuario] -> Bool
+aux1 pbs [] = False
+aux1 pbs likes | aux2 pbs (head(likes)) == True = True
+               | otherwise = aux1 pbs (tail(likes))
+
+aux2 :: [Publicacion] -> Usuario -> Bool
+aux2 [] n = True
+aux2 (x:xs) n | leGustaLaPublicacionA x n == True = aux2 xs n
+              | leGustaLaPublicacionA x n == False = False
 
 -- describir qué hace la función: .....
 existeSecuenciaDeAmigos :: RedSocial -> Usuario -> Usuario -> Bool
