@@ -1,4 +1,4 @@
-module Iap1 where
+module Iap1-tp where
 -- Completar con los datos del grupo
 --
 -- Nombre de Grupo: xx
@@ -52,13 +52,13 @@ nombresDeUsuarios (us,rs,ps) = nombresDeUsuariosAux us
 -- Toma una RedSocial y un Usuario y devuelve la lista de usuarios que se relacionan con el primero
 -- Para ello usamos una auxiliar "sonAmigos" que toma las relaciones de la RedSocial y chequea quienes son los amigos usuario dado
 amigosDe :: RedSocial -> Usuario -> [Usuario]
-amigosDe (us, rs, ps) n = sonAmigos (relaciones(us, rs, ps)) n
+amigosDe (us, rs, ps) n = amigos (relaciones(us, rs, ps)) n
 
-sonAmigos :: [Relacion] -> Usuario -> [Usuario]
-sonAmigos [] nm = []
-sonAmigos (x:xs) n | n == fst x = snd x : sonAmigos xs n
-                   | n == snd x = fst x : sonAmigos xs n
-                   | otherwise = sonAmigos xs n
+amigos :: [Relacion] -> Usuario -> [Usuario]
+amigos [] nm = []
+amigos (x:xs) n | n == fst x = snd x : amigos xs n
+                | n == snd x = fst x : amigos xs n
+                | otherwise = amigos xs n
 
 -- Toma una red social y un usuario y devuelve la cantidad de relaciones/amigos que tiene ese usuario
 -- Usa una funcion auxiliar que cuenta la cantidad de relaciones que tiene dicho usuario
@@ -115,19 +115,37 @@ lesGustanLasMismasPublicaciones rs us1 us2 = publicacionesQueLeGustanA rs us1 ==
 
 -- describir qué hace la función: .....
 tieneUnSeguidorFiel :: RedSocial -> Usuario -> Bool
-tieneUnSeguidorFiel rs a = aux1 (publicacionesDe rs a) (likesDePublicacion (head(publicacionesDe rs a)))
+tieneUnSeguidorFiel rs a = usuariosFieles (publicacionesDe rs a) (likesDePublicacion (head(publicacionesDe rs a)))
 
-aux1 :: [Publicacion] -> [Usuario] -> Bool
-aux1 pbs [] = False
-aux1 pbs likes | aux2 pbs (head(likes)) == True = True
-               | otherwise = aux1 pbs (tail(likes))
+usuariosFieles :: [Publicacion] -> [Usuario] -> Bool
+usuariosFieles pbs [] = False
+usuariosFieles pbs likes | esFiel pbs (head(likes)) == True = True
+                         | otherwise = usuariosFieles pbs (tail(likes))
 
-aux2 :: [Publicacion] -> Usuario -> Bool
-aux2 [] n = True
-aux2 (x:xs) n | leGustaLaPublicacionA x n == True = aux2 xs n
-              | leGustaLaPublicacionA x n == False = False
+esFiel :: [Publicacion] -> Usuario -> Bool
+esFiel [] n = True
+esFiel (x:xs) n | leGustaLaPublicacionA x n == True = esFiel xs n
+                | leGustaLaPublicacionA x n == False = False
 
 -- describir qué hace la función: .....
 existeSecuenciaDeAmigos :: RedSocial -> Usuario -> Usuario -> Bool
-existeSecuenciaDeAmigos = undefined
+existeSecuenciaDeAmigos rs us1 us2 = verificador rs us2 (amigosDe rs us1) []
 
+verificador :: RedSocial -> Usuario -> [Usuario] -> [Usuario] -> Bool
+verificador rs us2 [] lista = False
+verificador rs us2 as lista | pertenece us2 (listaVerificada as lista) = True
+                            | otherwise = verificador2 rs us2 (amigosDe rs (head(as))) lista
+
+verificador2 :: RedSocial -> Usuario -> [Usuario] -> [Usuario] -> Bool
+verificador2 rs us2 as lista | verificador rs us2 as lista = True
+                             | otherwise = verificador rs us2 as lista
+
+pertenece :: Usuario -> [Usuario] -> Bool
+pertenece us [] = False
+pertenece us (x:xs) | x == us = True
+                     | otherwise = pertenece us xs
+
+listaVerificada :: [Usuario] -> [Usuario] -> [Usuario]
+listaVerificada [] ys = []
+listaVerificada (x:xs) ys | pertenece x ys = listaVerificada xs ys
+                          | otherwise = x : listaVerificada xs ys
