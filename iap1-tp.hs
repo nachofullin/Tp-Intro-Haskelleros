@@ -6,7 +6,6 @@ module Iap1 where
 -- Integrante 2: Nombre Apellido, email, LU
 -- Integrante 3: Nombre Apellido, email, LU
 -- Integrante 4: Nombre Apellido, email, LU
-
 type Usuario = (Integer, String) -- (id, nombre)
 type Relacion = (Usuario, Usuario) -- usuarios que se relacionan
 type Publicacion = (Usuario, String, [Usuario]) -- (usuario que publica, texto publicacion, likes)
@@ -109,19 +108,33 @@ lesGustanLasMismasPublicaciones rs us1 us2 = publicacionesQueLeGustanA rs us1 ==
 
 -- describir qué hace la función: .....
 tieneUnSeguidorFiel :: RedSocial -> Usuario -> Bool
-tieneUnSeguidorFiel rs a = aux1 (publicacionesDe rs a) (likesDePublicacion (head(publicacionesDe rs a)))
+tieneUnSeguidorFiel rs a = amigosFieles (publicacionesDe rs a) (likesDePublicacion (head(publicacionesDe rs a)))
 
-aux1 :: [Publicacion] -> [Usuario] -> Bool
-aux1 pbs [] = False
-aux1 pbs likes | aux2 pbs (head(likes)) == True = True
-               | otherwise = aux1 pbs (tail(likes))
+amigosFieles :: [Publicacion] -> [Usuario] -> Bool
+amigosFieles pbs [] = False
+amigosFieles pbs likes | esFiel pbs (head(likes)) == True = True
+                       | otherwise = amigosFieles pbs (tail(likes))
 
-aux2 :: [Publicacion] -> Usuario -> Bool
-aux2 [] n = True
-aux2 (x:xs) n | leGustaLaPublicacionA x n == True = aux2 xs n
-              | leGustaLaPublicacionA x n == False = False
+esFiel :: [Publicacion] -> Usuario -> Bool
+esFiel [] n = True
+esFiel (x:xs) n | leGustaLaPublicacionA x n == True = esFiel xs n
+                | leGustaLaPublicacionA x n == False = False
 
 -- describir qué hace la función: .....
 existeSecuenciaDeAmigos :: RedSocial -> Usuario -> Usuario -> Bool
-existeSecuenciaDeAmigos = undefined
+existeSecuenciaDeAmigos rs us1 us2 | aux2 (amigosDe rs us1) us2 = True
+                                   | otherwise = aux1 rs (amigosDe rs us1) [] us2
+
+aux1 :: RedSocial -> [Usuario] -> [Usuario] -> Usuario -> Bool
+aux1 rs [] _ us2 = False
+aux1 rs (x:xs) no us2 | aux2 no x = False
+                      | aux2 (amigosDe rs x) us2 = True
+                      | otherwise = aux1 rs xs (x:no) us2
+ 
+aux2 :: [Usuario] -> Usuario -> Bool
+aux2 [] us = False
+aux2 (x:xs) us | x == us = True
+               | otherwise = aux2 xs us
+
+
 
