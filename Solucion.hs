@@ -1,16 +1,17 @@
-module Iap1-tp where
+module Solucion where
 -- Completar con los datos del grupo
 --
--- Nombre de Grupo: xx
--- Integrante 1: Nombre Apellido, email, LU
--- Integrante 2: Nombre Apellido, email, LU
--- Integrante 3: Nombre Apellido, email, LU
--- Integrante 4: Nombre Apellido, email, LU
+-- Nombre de Grupo: Haskelleros
+-- Integrante 1: Ignacio Fullin, nacho.m.fullin@gmail.com, 1718/21
+-- Integrante 2: Joel Mastroiaco, joelmastroiaco@gmail.com, 1075/22
+-- Integrante 3: Paulo Accardo, paulo.matias.accardo@gmail.com, 836/22
+-- Integrante 4: decidio no continuar con el tp
 
 type Usuario = (Integer, String) -- (id, nombre)
 type Relacion = (Usuario, Usuario) -- usuarios que se relacionan
 type Publicacion = (Usuario, String, [Usuario]) -- (usuario que publica, texto publicacion, likes)
 type RedSocial = ([Usuario], [Relacion], [Publicacion])
+
 
 -- Funciones basicas
 
@@ -73,20 +74,14 @@ contadorDeAmigos (x:xs) | xs == [] = 1
 -- Toma una red social y compara la cantidad de amigos de cada usuario para devolver el usuario con mayor cantidad
 usuarioConMasAmigos :: RedSocial -> Usuario
 usuarioConMasAmigos ((x:xs), rs, ps) | xs == [] = x
-                                     | cantidadDeAmigos ((x:xs), rs, ps) x > cantidadDeAmigos ((x:xs), rs, ps) (head(xs)) = usuarioConMasAmigos ((x : tail(xs)), rs, ps)
+                                     | cantidadDeAmigos ((x:xs), rs, ps) x >= cantidadDeAmigos ((x:xs), rs, ps) (head(xs)) = usuarioConMasAmigos ((x : tail(xs)), rs, ps)
                                      | otherwise = usuarioConMasAmigos (xs, rs, ps)
 
 -- Toma una red social y revisa si algun usuario tiene mas de 1000000 de amigos
 estaRobertoCarlos :: RedSocial -> Bool
 estaRobertoCarlos ([], _, _) = False
-estaRobertoCarlos ((x:xs), rs, ps) | (cantidadDeAmigos ((x:xs), rs, ps) x) > 1000000 = True
+estaRobertoCarlos ((x:xs), rs, ps) | (cantidadDeAmigos ((x:xs), rs, ps) x) > 10 = True
                                    | otherwise = estaRobertoCarlos (xs, rs, ps)
-
--- describir qué hace la función: .....
--- estaRobertoCarlos :: RedSocial -> Bool
--- estaRobertoCarlos [] = False
--- estaRobertoCarlos (x:xs) | x == "RobertoCarlos" = True
---                          | otherwise = estaRobertoCarlos (xs)
 
 -- Dada una red social y un usuario, la funcion principal extrae las publicaciones de la red social
 -- Y una funcion auxiliar que devuelve todas las publicaciones de ese usuario
@@ -96,7 +91,7 @@ publicacionesDe rd n = publicacionesDelUsuario (publicaciones(rd)) n
 publicacionesDelUsuario :: [Publicacion] -> Usuario -> [Publicacion]
 publicacionesDelUsuario [] _ = []
 publicacionesDelUsuario (x:xs) n | usuarioDePublicacion x == n = x : publicacionesDelUsuario xs n
-             | otherwise = publicacionesDelUsuario xs n
+                                 | otherwise = publicacionesDelUsuario xs n
 
 -- describir qué hace la función: .....
 publicacionesQueLeGustanA :: RedSocial -> Usuario -> [Publicacion]
@@ -115,6 +110,7 @@ lesGustanLasMismasPublicaciones rs us1 us2 = publicacionesQueLeGustanA rs us1 ==
 
 -- describir qué hace la función: .....
 tieneUnSeguidorFiel :: RedSocial -> Usuario -> Bool
+tieneUnSeguidorFiel (_,_,[]) _ = False
 tieneUnSeguidorFiel rs a = usuariosFieles (publicacionesDe rs a) (likesDePublicacion (head(publicacionesDe rs a)))
 
 usuariosFieles :: [Publicacion] -> [Usuario] -> Bool
@@ -133,12 +129,13 @@ existeSecuenciaDeAmigos rs us1 us2 = verificador rs us2 (amigosDe rs us1) []
 
 verificador :: RedSocial -> Usuario -> [Usuario] -> [Usuario] -> Bool
 verificador rs us2 [] lista = False
-verificador rs us2 as lista | pertenece us2 (listaVerificada as lista) = True
-                            | otherwise = verificador2 rs us2 (amigosDe rs (head(as))) lista
+verificador rs us2 as lista | pertenece us2 as = True
+                            | otherwise = verificador2 rs us2 as (lista++as) 
 
 verificador2 :: RedSocial -> Usuario -> [Usuario] -> [Usuario] -> Bool
-verificador2 rs us2 as lista | verificador rs us2 as lista = True
-                             | otherwise = verificador rs us2 as lista
+verificador2 rs us2 [] lista = False
+verificador2 rs us2 as lista | listaVerificada (amigosDe rs (head(as))) lista /= [] = verificador rs us2 (listaVerificada (amigosDe rs (head(as))) lista) lista
+                             | listaVerificada (amigosDe rs (head(as))) lista == [] = verificador2 rs us2 (tail(as)) lista
 
 pertenece :: Usuario -> [Usuario] -> Bool
 pertenece us [] = False
